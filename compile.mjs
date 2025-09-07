@@ -48,7 +48,18 @@ if (!existsSync(compiledFolder)) {
 	mkdirSync(compiledFolder);
 }
 
-copyFileSync(resolve(currentDir, 'README.md'), resolve(compiledFolder, 'README.md'));
+console.log('Current directory:', currentDir);
+console.log('Compiled folder:', compiledFolder);
+const readmeSourcePath = resolve(currentDir, 'README.md');
+const readmeDestPath = resolve(compiledFolder, 'README.md');
+console.log('README source path:', readmeSourcePath);
+console.log('README destination path:', readmeDestPath);
+try {
+	copyFileSync(readmeSourcePath, readmeDestPath);
+	console.log('README.md copied successfully!');
+} catch (e) {
+	console.error('Error copying README.md:', e);
+}
 
 const buildConfig = ({
 	filepath,
@@ -87,6 +98,9 @@ const promises = pluginsToBuild.map(file => {
 	return build(buildConfig(file));
 });
 await Promise.all(promises);
+
+copyFileSync(resolve(currentDir, 'README.md'), resolve(compiledFolder, 'README.md'));
+
 console.log('Generating the package.json file...');
 pluginsToBuild.forEach(file => {
 	const packagePath = resolve(compiledFolder, 'package.json');
