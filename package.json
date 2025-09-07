@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --config src/vite.config.js",
-    "compile": "tsc && node compile.mjs"
+    "compile": "tsc && node compile.mjs",
+    "publish": "npm run compile && cd dist && npm publish"
   },
   "devDependencies": {
     "typescript": "^5.0.4",
@@ -17,5 +18,5 @@
     "fancy-canvas": "^2.1.0",
     "lightweight-charts": "~5.0.0"
   },
-  "version": "0.0.0"
+  "version": "1.0.31"
 }

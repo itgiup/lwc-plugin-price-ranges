@@ -82,6 +82,13 @@ const primitive = new Priceranges(
 lineSeries.attachPrimitive(primitive);
 ```
 
+## Features
+
+*   **Improved Drag Behavior**: Dragging price range handles (top/bottom) now works independently, preventing unintended movement of the opposite handle.
+*   **Selected Handle Highlighting**: The actively selected price range handle is visually highlighted for better user feedback.
+*   **Enhanced Usability**: Increased the size of corner handles for easier selection.
+*   **Refined Aesthetics**: Reduced the border thickness of the price range box for a cleaner look.
+
 ## Contributing
 
 (Add information on how others can contribute to your project)
