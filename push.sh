@@ -1,5 +1,5 @@
 git add .
-git commit -m "good"
+git commit -m "cập nhật label vẽ cho phù hợp với màn hình điện thoại"
 git push
 
 # merge -> main 

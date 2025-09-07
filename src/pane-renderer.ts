@@ -7,6 +7,8 @@ import { ExternalId } from './helpers/constants';
 
 const handleWidth = 3;
 const handleHeight = 3;
+const handleRadius = 6;
+
 
 export class PricerangesPaneRenderer implements IPrimitivePaneRenderer {
 	_p1: ViewPoint;
@@ -90,10 +92,12 @@ export class PricerangesPaneRenderer implements IPrimitivePaneRenderer {
 
 					// Draw Label
 					const labelText = `${labelData.priceDiff} (${labelData.percentageDiff}) ${labelData.barDiff}`;
-					ctx.font = options.labelFont;
+					const font = `${options.labelFontWeight} ${options.labelFontSize * scope.verticalPixelRatio}px ${options.labelFontFamily}`;
+
+					ctx.font = font;
 					const textMetrics = ctx.measureText(labelText);
-					const labelWidth = textMetrics.width + 10; // padding
-					const labelHeight = 20; // fixed height
+					const labelWidth = textMetrics.width + 10 * scope.horizontalPixelRatio; // padding
+					const labelHeight = 20 * scope.verticalPixelRatio; // fixed height
 					const labelX = xCenter - labelWidth / 2;
 					const labelY = verticalPositions.position - labelHeight - 5; // 5px above the box
 
@@ -142,23 +146,28 @@ export class PricerangesPaneRenderer implements IPrimitivePaneRenderer {
 					}
 				};
 
+				const _handleWidth = handleWidth * scope.horizontalPixelRatio;
+				const _handleHeight = handleHeight * scope.verticalPixelRatio;
+				const _handleRadius = handleRadius * scope.horizontalPixelRatio;
+
+
 				// horizontal handles
-				const handleX1 = horizontalPositions.position - handleWidth / 2;
-				const handleX2 = horizontalPositions.position + horizontalPositions.length - handleWidth / 2;
-				drawHandle(handleX1, verticalPositions.position, handleWidth, verticalPositions.length, ExternalId.LEFT_HANDLE);
-				drawHandle(handleX2, verticalPositions.position, handleWidth, verticalPositions.length, ExternalId.RIGHT_HANDLE);
+				const handleX1 = horizontalPositions.position - _handleWidth / 3;
+				const handleX2 = horizontalPositions.position + horizontalPositions.length - _handleWidth / 2;
+				drawHandle(handleX1, verticalPositions.position, _handleWidth, verticalPositions.length, ExternalId.LEFT_HANDLE);
+				drawHandle(handleX2, verticalPositions.position, _handleWidth, verticalPositions.length, ExternalId.RIGHT_HANDLE);
 
 				// vertical handles
-				const handleY1 = verticalPositions.position - handleHeight / 2;
-				const handleY2 = verticalPositions.position + verticalPositions.length - handleHeight / 2;
-				drawHandle(horizontalPositions.position, handleY1, horizontalPositions.length, handleHeight, ExternalId.TOP_HANDLE);
-				drawHandle(horizontalPositions.position, handleY2, horizontalPositions.length, handleHeight, ExternalId.BOTTOM_HANDLE);
+				const handleY1 = verticalPositions.position - _handleHeight / 3;
+				const handleY2 = verticalPositions.position + verticalPositions.length - _handleHeight / 2;
+				drawHandle(horizontalPositions.position, handleY1, horizontalPositions.length, _handleHeight, ExternalId.TOP_HANDLE);
+				drawHandle(horizontalPositions.position, handleY2, horizontalPositions.length, _handleHeight, ExternalId.BOTTOM_HANDLE);
 
 				// corner handles
-				drawCircularHandle(horizontalPositions.position, verticalPositions.position, handleWidth, ExternalId.TOP_LEFT_HANDLE);
-				drawCircularHandle(horizontalPositions.position + horizontalPositions.length, verticalPositions.position, handleWidth, ExternalId.TOP_RIGHT_HANDLE);
-				drawCircularHandle(horizontalPositions.position, verticalPositions.position + verticalPositions.length, handleWidth, ExternalId.BOTTOM_LEFT_HANDLE);
-				drawCircularHandle(horizontalPositions.position + horizontalPositions.length, verticalPositions.position + verticalPositions.length, handleWidth, ExternalId.BOTTOM_RIGHT_HANDLE);
+				drawCircularHandle(horizontalPositions.position, verticalPositions.position, _handleRadius, ExternalId.TOP_LEFT_HANDLE);
+				drawCircularHandle(horizontalPositions.position + horizontalPositions.length, verticalPositions.position, _handleRadius, ExternalId.TOP_RIGHT_HANDLE);
+				drawCircularHandle(horizontalPositions.position, verticalPositions.position + verticalPositions.length, _handleRadius, ExternalId.BOTTOM_LEFT_HANDLE);
+				drawCircularHandle(horizontalPositions.position + horizontalPositions.length, verticalPositions.position + verticalPositions.length, _handleRadius, ExternalId.BOTTOM_RIGHT_HANDLE);
 			}
 		});
 	}

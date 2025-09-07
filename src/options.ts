@@ -18,7 +18,9 @@ export interface PricerangesOptions {
 	labelTextColor: string;
 	labelBorderColor: string;
 	labelBorderWidth: number;
-	labelFont: string;
+	labelFontSize: number;
+	labelFontWeight: string;
+	labelFontFamily: string;
 
 	labelColor: string;
 	showLabels: boolean;
@@ -28,6 +30,13 @@ export interface PricerangesOptions {
 	selectedHandleWidth: number; // Added missing property
 }
 
+
+const fontSize = 12;
+const fontWeight = 'bold';
+const fontFamily = 'Arial';
+
+
+
 export const defaultOptions: PricerangesOptions = {
 	//* Define the default values for all the primitive options.
 	fillColor: 'rgba(0, 122, 255, 0.25)',
@@ -35,9 +44,9 @@ export const defaultOptions: PricerangesOptions = {
 	selectedFillColor: 'rgba(0, 122, 255, 0.55)',
 	dragHandleColor: 'rgba(0, 122, 255, 1)',
 	borderColor: 'rgba(0, 122, 255, 1)',
-	borderWidth: 1,
-	hoverBorderWidth: 2,
-	selectedBorderWidth: 3,
+	borderWidth: 0.5, // Reduced
+	hoverBorderWidth: 1, // Reduced
+	selectedBorderWidth: 1.5, // Reduced
 
 	showInfoLabel: true,
 	arrowColor: 'rgba(0, 122, 255, 1)',
@@ -46,7 +55,9 @@ export const defaultOptions: PricerangesOptions = {
 	labelTextColor: 'white',
 	labelBorderColor: 'rgba(150, 150, 150, 1)',
 	labelBorderWidth: 1,
-	labelFont: '12px sans-serif',
+	labelFontSize: fontSize,
+	labelFontWeight: fontWeight,
+	labelFontFamily: fontFamily,
 
 	labelColor: 'rgba(0, 122, 255, 1)',
 	showLabels: true,
@@ -58,6 +69,6 @@ export const defaultOptions: PricerangesOptions = {
 			: new Date(time * 1000);
 		return date.toLocaleDateString();
 	},
-	selectedHandleColor: 'rgba(146, 137, 7, 1)',
+	selectedHandleColor: 'rgba(223, 172, 5, 1)',
 	selectedHandleWidth: 4,
 } as const;
