@@ -1,16 +1,16 @@
-import { dirname, resolve } from 'node:path';
-import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, resolve, join } from 'node:path';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { build, defineConfig } from 'vite';
 import { fileURLToPath } from 'url';
 import { generateDtsBundle } from 'dts-bundle-generator';
 
-function buildPackageJson(packageName) {
+function buildPackageJson(packageName, version) {
 	/*
 	 Define the contents of the package's package.json here.
 	 */
 	return {
 		name: packageName,
-		version: '1.0.0',
+		version: version,
 		keywords: ['lwc-plugin', 'lightweight-charts'],
 		type: 'module',
 		main: `./${packageName}.umd.cjs`,
@@ -31,6 +31,10 @@ function buildPackageJson(packageName) {
 
 const __filename = fileURLToPath(import.meta.url);
 const currentDir = dirname(__filename);
+
+const rootPackageJsonPath = join(currentDir, 'package.json'); // Path to root package.json
+const rootPackageJson = JSON.parse(readFileSync(rootPackageJsonPath, 'utf-8'));
+const packageVersion = rootPackageJson.version; // Get version from root package.json
 
 const pluginFileName = 'price-ranges';
 const pluginFile = resolve(currentDir, 'src', `${pluginFileName}.ts`);
@@ -105,7 +109,7 @@ console.log('Generating the package.json file...');
 pluginsToBuild.forEach(file => {
 	const packagePath = resolve(compiledFolder, 'package.json');
 	const content = JSON.stringify(
-		buildPackageJson(file.exportName),
+		buildPackageJson(file.exportName, packageVersion),
 		undefined,
 		4
 	);
