@@ -2,6 +2,7 @@
   "name": "lwc-plugin-price-ranges",
   "license": "MIT",
   "author": "itgiup",
+  "description": "A plugin for TradingView Lightweight Charts to display price ranges.",
   "type": "module",
   "scripts": {
     "dev": "vite --config src/vite.config.js",
@@ -15,5 +16,6 @@
     "dts-bundle-generator": "^8.0.1",
     "fancy-canvas": "^2.1.0",
     "lightweight-charts": "~5.0.0"
-  }
+  },
+  "version": "0.0.0"
 }
