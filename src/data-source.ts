@@ -22,6 +22,5 @@ export interface PricerangesDataSource {
 	isHovered(): boolean;
 	isSelected(): boolean;
 	getInfoLabelData(): InfoLabelData | null;
+	getSelectedHandle(): string | null; // Added missing method
 }
-
-

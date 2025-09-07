@@ -3,6 +3,7 @@ import { IPrimitivePaneRenderer } from 'lightweight-charts';
 import { PricerangesDataSource } from './data-source';
 import { ViewPoint } from './pane-view';
 import { positionsBox } from './helpers/dimensions/positions';
+import { ExternalId } from './helpers/constants';
 
 const handleWidth = 3;
 const handleHeight = 3;
@@ -113,32 +114,51 @@ export class PricerangesPaneRenderer implements IPrimitivePaneRenderer {
 
 			// Draw handles if selected or hovered
 			if (this._source.isSelected() || this._source.isHovered()) {
-				ctx.fillStyle = options.dragHandleColor;
+				const selectedHandle = this._source.getSelectedHandle();
+
+				// Helper function to draw a handle
+				const drawHandle = (x: number, y: number, width: number, height: number, handleId: string) => {
+					if (selectedHandle === handleId) {
+						ctx.fillStyle = options.selectedHandleColor;
+						ctx.fillRect(x, y, width, height);
+					} else {
+						ctx.fillStyle = options.dragHandleColor;
+						ctx.fillRect(x, y, width, height);
+					}
+				};
+
+				// Helper function to draw a circular handle
+				const drawCircularHandle = (x: number, y: number, radius: number, handleId: string) => {
+					if (selectedHandle === handleId) {
+						ctx.fillStyle = options.selectedHandleColor;
+						ctx.beginPath();
+						ctx.arc(x, y, radius, 0, 2 * Math.PI);
+						ctx.fill();
+					} else {
+						ctx.fillStyle = options.dragHandleColor;
+						ctx.beginPath();
+						ctx.arc(x, y, radius, 0, 2 * Math.PI);
+						ctx.fill();
+					}
+				};
+
 				// horizontal handles
 				const handleX1 = horizontalPositions.position - handleWidth / 2;
 				const handleX2 = horizontalPositions.position + horizontalPositions.length - handleWidth / 2;
-				ctx.fillRect(handleX1, verticalPositions.position, handleWidth, verticalPositions.length);
-				ctx.fillRect(handleX2, verticalPositions.position, handleWidth, verticalPositions.length);
+				drawHandle(handleX1, verticalPositions.position, handleWidth, verticalPositions.length, ExternalId.LEFT_HANDLE);
+				drawHandle(handleX2, verticalPositions.position, handleWidth, verticalPositions.length, ExternalId.RIGHT_HANDLE);
 
 				// vertical handles
 				const handleY1 = verticalPositions.position - handleHeight / 2;
 				const handleY2 = verticalPositions.position + verticalPositions.length - handleHeight / 2;
-				ctx.fillRect(horizontalPositions.position, handleY1, horizontalPositions.length, handleHeight);
-				ctx.fillRect(horizontalPositions.position, handleY2, horizontalPositions.length, handleHeight);
+				drawHandle(horizontalPositions.position, handleY1, horizontalPositions.length, handleHeight, ExternalId.TOP_HANDLE);
+				drawHandle(horizontalPositions.position, handleY2, horizontalPositions.length, handleHeight, ExternalId.BOTTOM_HANDLE);
 
 				// corner handles
-				ctx.beginPath();
-				ctx.arc(horizontalPositions.position, verticalPositions.position, handleWidth, 0, 2 * Math.PI);
-				ctx.fill();
-				ctx.beginPath();
-				ctx.arc(horizontalPositions.position + horizontalPositions.length, verticalPositions.position, handleWidth, 0, 2 * Math.PI);
-				ctx.fill();
-				ctx.beginPath();
-				ctx.arc(horizontalPositions.position, verticalPositions.position + verticalPositions.length, handleWidth, 0, 2 * Math.PI);
-				ctx.fill();
-				ctx.beginPath();
-				ctx.arc(horizontalPositions.position + horizontalPositions.length, verticalPositions.position + verticalPositions.length, handleWidth, 0, 2 * Math.PI);
-				ctx.fill();
+				drawCircularHandle(horizontalPositions.position, verticalPositions.position, handleWidth, ExternalId.TOP_LEFT_HANDLE);
+				drawCircularHandle(horizontalPositions.position + horizontalPositions.length, verticalPositions.position, handleWidth, ExternalId.TOP_RIGHT_HANDLE);
+				drawCircularHandle(horizontalPositions.position, verticalPositions.position + verticalPositions.length, handleWidth, ExternalId.BOTTOM_LEFT_HANDLE);
+				drawCircularHandle(horizontalPositions.position + horizontalPositions.length, verticalPositions.position + verticalPositions.length, handleWidth, ExternalId.BOTTOM_RIGHT_HANDLE);
 			}
 		});
 	}

@@ -205,6 +205,13 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 		this.requestUpdate();
 	}
 
+	public getSelectedHandle(): string | null {
+		if (Priceranges._stickyPart && Priceranges._stickyPart.instance === this) {
+			return Priceranges._stickyPart.part;
+		}
+		return null;
+	}
+
 	private static _handleGlobalClick = (param: MouseEventParams) => {
 		if (!param.point || !Priceranges._chart) return;
 

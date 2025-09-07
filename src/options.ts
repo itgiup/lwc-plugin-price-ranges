@@ -24,6 +24,8 @@ export interface PricerangesOptions {
 	showLabels: boolean;
 	priceLabelFormatter: (price: number) => string;
 	timeLabelFormatter: (time: Time) => string;
+	selectedHandleColor: string; // Added missing property
+	selectedHandleWidth: number; // Added missing property
 }
 
 export const defaultOptions: PricerangesOptions = {
@@ -56,5 +58,6 @@ export const defaultOptions: PricerangesOptions = {
 			: new Date(time * 1000);
 		return date.toLocaleDateString();
 	},
+	selectedHandleColor: 'rgba(146, 137, 7, 1)',
+	selectedHandleWidth: 4,
 } as const;
-
