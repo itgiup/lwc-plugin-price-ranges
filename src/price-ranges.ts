@@ -5,7 +5,6 @@ import {
 	SeriesAttachedParameter,
 	PrimitiveHoveredItem,
 	Coordinate,
-	IChartApi,
 	MouseEventParams,
 } from 'lightweight-charts';
 
@@ -185,7 +184,7 @@ export class Priceranges
 
 	private _handleCrosshairMove = (params: MouseEventParams) => {
 		if (this._isDragging) return;
-		const hoveredSource = params.hoveredSource as unknown as Priceranges | undefined;
+		const hoveredSource = params.hoveredObjectId as unknown as Priceranges | undefined;
 		if (hoveredSource && hoveredSource instanceof Priceranges) {
 			if (Priceranges._lastHoveredItem !== hoveredSource) {
 				if (Priceranges._lastHoveredItem) {

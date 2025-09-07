@@ -1,4 +1,4 @@
-import { Coordinate, IPrimitivePaneView, PrimitiveHoveredItem } from 'lightweight-charts';
+import { Coordinate, IPrimitivePaneView, PrimitiveHoveredItem, PrimitivePaneViewZOrder } from 'lightweight-charts';
 import { PricerangesPaneRenderer } from './pane-renderer';
 import { PricerangesDataSource } from './data-source';
 
@@ -63,12 +63,14 @@ export class PricerangesPaneView implements IPrimitivePaneView {
                 return {
                     cursorStyle: 'ew-resize',
                     externalId: 'left-handle',
+                    zOrder: 1 as unknown as PrimitivePaneViewZOrder,
                 };
             }
             if (x >= maxX - handleRadiusH && x <= maxX + handleRadiusH && y >= minY && y <= maxY) {
                 return {
                     cursorStyle: 'ew-resize',
                     externalId: 'right-handle',
+                    zOrder: 1 as unknown as PrimitivePaneViewZOrder,
                 };
             }
 			// Vertical handles
@@ -76,12 +78,14 @@ export class PricerangesPaneView implements IPrimitivePaneView {
 				return {
 					cursorStyle: 'ns-resize',
 					externalId: 'top-handle',
+					zOrder: 1 as unknown as PrimitivePaneViewZOrder,
 				};
 			}
 			if (y >= maxY - handleRadiusV && y <= maxY + handleRadiusV && x >= minX && x <= maxX) {
 				return {
 					cursorStyle: 'ns-resize',
 					externalId: 'bottom-handle',
+					zOrder: 1 as unknown as PrimitivePaneViewZOrder,
 				};
 			}
 			// Corner handles
@@ -90,24 +94,28 @@ export class PricerangesPaneView implements IPrimitivePaneView {
 				return {
 					cursorStyle: 'nwse-resize',
 					externalId: 'top-left-handle',
+					zOrder: 1 as unknown as PrimitivePaneViewZOrder,
 				};
 			}
 			if (Math.hypot(x - maxX, y - minY) < handleRadius) {
 				return {
 					cursorStyle: 'nesw-resize',
 					externalId: 'top-right-handle',
+					zOrder: 1 as unknown as PrimitivePaneViewZOrder,
 				};
 			}
 			if (Math.hypot(x - minX, y - maxY) < handleRadius) {
 				return {
 					cursorStyle: 'nesw-resize',
 					externalId: 'bottom-left-handle',
+					zOrder: 1 as unknown as PrimitivePaneViewZOrder,
 				};
 			}
 			if (Math.hypot(x - maxX, y - maxY) < handleRadius) {
 				return {
 					cursorStyle: 'nwse-resize',
 					externalId: 'bottom-right-handle',
+					zOrder: 1 as unknown as PrimitivePaneViewZOrder,
 				};
 			}
         }
@@ -117,6 +125,7 @@ export class PricerangesPaneView implements IPrimitivePaneView {
 			return {
 				cursorStyle: 'pointer',
 				externalId: 'body',
+				zOrder: 1 as unknown as PrimitivePaneViewZOrder,
 			};
 		}
 

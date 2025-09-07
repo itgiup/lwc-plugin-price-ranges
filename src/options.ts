@@ -21,7 +21,6 @@ export interface PricerangesOptions {
 	labelFont: string;
 
 	labelColor: string;
-	labelTextColor: string;
 	showLabels: boolean;
 	priceLabelFormatter: (price: number) => string;
 	timeLabelFormatter: (time: Time) => string;
@@ -48,7 +47,6 @@ export const defaultOptions: PricerangesOptions = {
 	labelFont: '12px sans-serif',
 
 	labelColor: 'rgba(0, 122, 255, 1)',
-	labelTextColor: 'white',
 	showLabels: true,
 	priceLabelFormatter: (price: number) => price.toFixed(2),
 	timeLabelFormatter: (time: Time) => {
