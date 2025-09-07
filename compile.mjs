@@ -48,6 +48,8 @@ if (!existsSync(compiledFolder)) {
 	mkdirSync(compiledFolder);
 }
 
+copyFileSync(resolve(currentDir, 'README.md'), resolve(compiledFolder, 'README.md'));
+
 const buildConfig = ({
 	filepath,
 	name,
