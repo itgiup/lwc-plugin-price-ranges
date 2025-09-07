@@ -1,5 +1,7 @@
 {
   "name": "lwc-plugin-price-ranges",
+  "license": "MIT",
+  "author": "itgiup",
   "type": "module",
   "scripts": {
     "dev": "vite --config src/vite.config.js",
