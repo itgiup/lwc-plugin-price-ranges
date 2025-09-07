@@ -1,6 +1,6 @@
 import {
 	CandlestickSeries, ColorType, CrosshairMode,
-	createChart
+	createChart, IChartApi
 } from 'lightweight-charts';
 import { Priceranges } from '../price-ranges';
 
@@ -37,6 +37,9 @@ async function setupChart() {
 		},
 	});
 
+	// Expose chart instance to Priceranges static property
+	Priceranges.setChart(chart); // Call the new static method
+
 	const candlestickSeries = chart.addSeries(CandlestickSeries, {
 		upColor: '#26a69a',
 		downColor: '#ef5350',
@@ -45,6 +48,7 @@ async function setupChart() {
 		wickDownColor: '#ef5350',
 		wickUpColor: '#26a69a',
 	});
+    Priceranges.setTargetSeries(candlestickSeries); // Set the target series for drawing
 
 	const data = await getBinanceKlines();
 	candlestickSeries.setData(data);
@@ -68,3 +72,19 @@ async function setupChart() {
 }
 
 setupChart();
+
+// Add button event listener
+const drawButton = document.getElementById('drawPriceRangeButton');
+if (drawButton) {
+    drawButton.addEventListener('click', () => {
+        Priceranges.setDrawingMode(true);
+        drawButton.textContent = 'Drawing... Click on chart to place points';
+        (drawButton as HTMLButtonElement).disabled = true;
+
+        // Set the callback for when drawing is completed
+        Priceranges.setOnDrawingCompleted(() => {
+            drawButton.textContent = 'Draw Price Range';
+            (drawButton as HTMLButtonElement).disabled = false;
+        });
+    });
+}

@@ -6,6 +6,8 @@ import {
 	MouseEventParams,
 	SeriesAttachedParameter,
 	Time,
+	ISeriesApi,
+	SeriesType,
 } from 'lightweight-charts';
 
 import { Point, PricerangesDataSource, InfoLabelData } from './data-source';
@@ -27,12 +29,10 @@ class SelectionManager {
 		}
 		if (this._selectedItem) {
 			this._selectedItem.setSelected(false);
-			this._selectedItem.setHovered(false);
 		}
 		this._selectedItem = item;
 		if (this._selectedItem) {
 			this._selectedItem.setSelected(true);
-			this._selectedItem.setHovered(true);
 		}
 	}
 }
@@ -43,6 +43,12 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 	private static _lastHoveredInstance: Priceranges | null = null;
 	private static _chart: IChartApi | null = null;
 	private static _stickyPart: { instance: Priceranges; part: string } | null = null;
+
+	private static _drawingState: 'IDLE' | 'DRAWING_STARTED' = 'IDLE';
+	private static _drawingInstance: Priceranges | null = null;
+	private static _targetSeries: ISeriesApi<SeriesType> | null = null;
+	private static _pendingDrawingStart: boolean = false;
+	private static _onDrawingCompleted: (() => void) | null = null;
 
 	private _options: PricerangesOptions;
 	p1: Point;
@@ -57,6 +63,8 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 	private _initialP2: Point | null = null;
 	private _startDragLogicalPoint: Point | null = null;
 	private _activePricePoint: 'p1' | 'p2' | null = null;
+	private _dragOffsetX: number | null = null;
+	private _dragOffsetY: number | null = null;
 
 	public constructor(
 		p1: Point,
@@ -205,6 +213,33 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 		this.requestUpdate();
 	}
 
+	public static setChart(chart: IChartApi) {
+		Priceranges._chart = chart;
+	}
+
+	public static setTargetSeries(series: ISeriesApi<SeriesType>) {
+		Priceranges._targetSeries = series;
+	}
+
+	public static setDrawingMode(enabled: boolean) {
+		if (enabled) {
+			Priceranges._drawingState = 'IDLE'; // Start in IDLE, ready for first click
+			Priceranges._pendingDrawingStart = true; // Indicate that the next click should start drawing
+		} else {
+			Priceranges._drawingState = 'IDLE'; // Always reset to IDLE
+			Priceranges._pendingDrawingStart = false; // No pending drawing
+			if (Priceranges._drawingInstance) {
+				// If drawing was in progress, clean up or finalize
+				// For now, just clear it. A more robust solution might remove it from the chart.
+				Priceranges._drawingInstance = null;
+			}
+		}
+	}
+
+	public static setOnDrawingCompleted(callback: (() => void) | null) {
+		Priceranges._onDrawingCompleted = callback;
+	}
+
 	public getSelectedHandle(): string | null {
 		if (Priceranges._stickyPart && Priceranges._stickyPart.instance === this) {
 			return Priceranges._stickyPart.part;
@@ -215,6 +250,37 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 	private static _handleGlobalClick = (param: MouseEventParams) => {
 		if (!param.point || !Priceranges._chart) return;
 
+		// Handle drawing mode clicks first
+		if (Priceranges._pendingDrawingStart && Priceranges._drawingState === 'IDLE') {
+			// First click after enabling drawing mode: start drawing
+			const time = Priceranges._chart.timeScale().coordinateToTime(param.point.x);
+			const price = Priceranges._targetSeries.coordinateToPrice(param.point.y);
+			if (!time || !price) return;
+
+			Priceranges._drawingInstance = new Priceranges({ time, price }, { time, price });
+			Priceranges._targetSeries.attachPrimitive(Priceranges._drawingInstance);
+			Priceranges._drawingState = 'DRAWING_STARTED';
+			Priceranges._pendingDrawingStart = false; // Drawing has started, no longer pending
+			return; // Consume the click event
+		} else if (Priceranges._drawingState === 'DRAWING_STARTED') {
+			// Second click: finalize drawing
+			if (Priceranges._drawingInstance && Priceranges._targetSeries) {
+				const time = Priceranges._chart.timeScale().coordinateToTime(param.point.x);
+				const price = Priceranges._targetSeries.coordinateToPrice(param.point.y);
+				if (!time || !price) return;
+				Priceranges._drawingInstance.p2 = { time, price };
+				Priceranges._drawingInstance.requestUpdate();
+				Priceranges._drawingInstance = null;
+				Priceranges._drawingState = 'IDLE';
+				// Re-enable the button and reset its text
+				if (Priceranges._onDrawingCompleted) {
+					Priceranges._onDrawingCompleted();
+				}
+			}
+			return; // Consume the click event
+		}
+
+		// If not in drawing mode, or if drawing mode is IDLE and not pending start, proceed with selection/sticky logic
 		if (Priceranges._stickyPart) {
 			Priceranges._stickyPart = null;
 			Priceranges._chart.applyOptions({
@@ -281,7 +347,17 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 	};
 
 	private static _handleGlobalCrosshairMove = (param: MouseEventParams) => {
-		if (Priceranges._stickyPart && param.point) {
+		if (Priceranges._drawingState === 'DRAWING_STARTED' && Priceranges._drawingInstance && param.point) {
+			const time = Priceranges._chart.timeScale().coordinateToTime(param.point.x);
+			const price = Priceranges._targetSeries.coordinateToPrice(param.point.y);
+			if (!time || !price) return;
+
+			Priceranges._drawingInstance.p2 = { time, price };
+			Priceranges._drawingInstance.requestUpdate();
+			return;
+		}
+
+		if (Priceranges._stickyPart) {
 			const { instance, part } = Priceranges._stickyPart;
 			const time = instance.chart.timeScale().coordinateToTime(param.point.x);
 			const price = instance.series.coordinateToPrice(param.point.y);
@@ -402,9 +478,13 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 			const time = this.chart.timeScale().coordinateToTime(x as Coordinate);
 			const price = this.series.coordinateToPrice(y as Coordinate);
 			if (!time || !price) return;
-			this._startDragLogicalPoint = { time, price };
-			this._initialP1 = { ...this.p1 };
-			this._initialP2 = { ...this.p2 };
+
+			// Calculate offset from mouse click to p1
+			this._dragOffsetX = (time as number) - (this.p1.time as number);
+			this._dragOffsetY = price - this.p1.price;
+
+			this._initialP1 = { ...this.p1 }; // Keep initial for width/height calculation
+			this._initialP2 = { ...this.p2 }; // Keep initial for width/height calculation
 
 			this.chart.applyOptions({
 				handleScroll: {
@@ -417,10 +497,12 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 	private _handleMouseUp = () => {
 		this._isDragging = false;
 		this._draggedPart = null;
-		this._startDragLogicalPoint = null;
+		this._startDragLogicalPoint = null; // This is no longer needed for body dragging
 		this._initialP1 = null;
 		this._initialP2 = null;
-		this._activePricePoint = null; // Reset active price point
+		this._activePricePoint = null;
+		this._dragOffsetX = null; // Reset
+		this._dragOffsetY = null; // Reset
 
 		this.chart.applyOptions({
 			handleScroll: {
@@ -432,7 +514,9 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 	private _handleMouseLeave = () => {
 		this._isDragging = false;
 		this._draggedPart = null;
-		this._activePricePoint = null; // Reset active price point
+		this._activePricePoint = null;
+		this._dragOffsetX = null; // Reset
+		this._dragOffsetY = null; // Reset
 	};
 
 	private _handleMouseMove = (event: MouseEvent) => {
@@ -446,13 +530,17 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 		if (!time || !price) return;
 
 		if (this._draggedPart === ExternalId.BODY) {
-			if (this._startDragLogicalPoint && this._initialP1 && this._initialP2) {
-				const timeDelta = (time as number) - (this._startDragLogicalPoint.time as number);
-				const priceDelta = price - this._startDragLogicalPoint.price;
-				this.p1.time = (this._initialP1.time as number) + timeDelta as Time;
-				this.p2.time = (this._initialP2.time as number) + timeDelta as Time;
-				this.p1.price = this._initialP1.price + priceDelta;
-				this.p2.price = this._initialP2.price + priceDelta;
+			if (this._dragOffsetX !== null && this._dragOffsetY !== null && this._initialP1 && this._initialP2) {
+				// Calculate new p1 based on current mouse position and initial offset
+				this.p1.time = (time as number) - this._dragOffsetX as Time;
+				this.p1.price = price - this._dragOffsetY;
+
+				// Maintain the original width/height of the price range
+				const timeDiff = (this._initialP2.time as number) - (this._initialP1.time as number);
+				const priceDiff = this._initialP2.price - this._initialP1.price;
+
+				this.p2.time = (this.p1.time as number) + timeDiff as Time;
+				this.p2.price = this.p1.price + priceDiff;
 			}
 		}
 		this.requestUpdate();
