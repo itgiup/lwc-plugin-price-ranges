@@ -10,4 +10,9 @@ export default defineConfig({
 			input,
 		},
 	},
+  server: {
+    host: true, // Hoặc '0.0.0.0'
+    port: 5173,
+    allowedHosts: true,
+  },
 });

@@ -1,6 +1,7 @@
-import { Coordinate, IPrimitivePaneView, PrimitiveHoveredItem, PrimitivePaneViewZOrder } from 'lightweight-charts';
+import { Coordinate, IPrimitivePaneView, PrimitiveHoveredItem } from 'lightweight-charts';
 import { PricerangesPaneRenderer } from './pane-renderer';
 import { PricerangesDataSource } from './data-source';
+import { CursorStyle, ExternalId } from './helpers/constants';
 
 const handleWidth = 10;
 const handleHeight = 10;
@@ -57,75 +58,74 @@ export class PricerangesPaneView implements IPrimitivePaneView {
 		const handleRadiusV = handleHeight / 2;
 
         // Check handles first as they are on top
-        if (this._source.isSelected() || this._source.isHovered()) {
-			// Horizontal handles
-            if (x >= minX - handleRadiusH && x <= minX + handleRadiusH && y >= minY && y <= maxY) {
-                return {
-                    cursorStyle: 'ew-resize',
-                    externalId: 'left-handle',
-                    zOrder: 1 as unknown as PrimitivePaneViewZOrder,
-                };
-            }
-            if (x >= maxX - handleRadiusH && x <= maxX + handleRadiusH && y >= minY && y <= maxY) {
-                return {
-                    cursorStyle: 'ew-resize',
-                    externalId: 'right-handle',
-                    zOrder: 1 as unknown as PrimitivePaneViewZOrder,
-                };
-            }
-			// Vertical handles
-			if (y >= minY - handleRadiusV && y <= minY + handleRadiusV && x >= minX && x <= maxX) {
-				return {
-					cursorStyle: 'ns-resize',
-					externalId: 'top-handle',
-					zOrder: 1 as unknown as PrimitivePaneViewZOrder,
-				};
-			}
-			if (y >= maxY - handleRadiusV && y <= maxY + handleRadiusV && x >= minX && x <= maxX) {
-				return {
-					cursorStyle: 'ns-resize',
-					externalId: 'bottom-handle',
-					zOrder: 1 as unknown as PrimitivePaneViewZOrder,
-				};
-			}
-			// Corner handles
-			const handleRadius = handleWidth;
-			if (Math.hypot(x - minX, y - minY) < handleRadius) {
-				return {
-					cursorStyle: 'nwse-resize',
-					externalId: 'top-left-handle',
-					zOrder: 1 as unknown as PrimitivePaneViewZOrder,
-				};
-			}
-			if (Math.hypot(x - maxX, y - minY) < handleRadius) {
-				return {
-					cursorStyle: 'nesw-resize',
-					externalId: 'top-right-handle',
-					zOrder: 1 as unknown as PrimitivePaneViewZOrder,
-				};
-			}
-			if (Math.hypot(x - minX, y - maxY) < handleRadius) {
-				return {
-					cursorStyle: 'nesw-resize',
-					externalId: 'bottom-left-handle',
-					zOrder: 1 as unknown as PrimitivePaneViewZOrder,
-				};
-			}
-			if (Math.hypot(x - maxX, y - maxY) < handleRadius) {
-				return {
-					cursorStyle: 'nwse-resize',
-					externalId: 'bottom-right-handle',
-					zOrder: 1 as unknown as PrimitivePaneViewZOrder,
-				};
-			}
-        }
+
+		// Horizontal handles
+		if (x >= minX - handleRadiusH && x <= minX + handleRadiusH && y >= minY && y <= maxY) {
+			return {
+				cursorStyle: CursorStyle.EW_RESIZE,
+				externalId: ExternalId.LEFT_HANDLE,
+				zOrder: 'top',
+			};
+		}
+		if (x >= maxX - handleRadiusH && x <= maxX + handleRadiusH && y >= minY && y <= maxY) {
+			return {
+				cursorStyle: CursorStyle.EW_RESIZE,
+				externalId: ExternalId.RIGHT_HANDLE,
+				zOrder: 'top',
+			};
+		}
+		// Vertical handles
+		if (y >= minY - handleRadiusV && y <= minY + handleRadiusV && x >= minX && x <= maxX) {
+			return {
+				cursorStyle: CursorStyle.NS_RESIZE,
+				externalId: ExternalId.TOP_HANDLE,
+				zOrder: 'top',
+			};
+		}
+		if (y >= maxY - handleRadiusV && y <= maxY + handleRadiusV && x >= minX && x <= maxX) {
+			return {
+				cursorStyle: CursorStyle.NS_RESIZE,
+				externalId: ExternalId.BOTTOM_HANDLE,
+				zOrder: 'top',
+			};
+		}
+		// Corner handles
+		const handleRadius = handleWidth;
+		if (Math.hypot(x - minX, y - minY) < handleRadius) {
+			return {
+				cursorStyle: CursorStyle.NWSE_RESIZE,
+				externalId: ExternalId.TOP_LEFT_HANDLE,
+				zOrder: 'top',
+			};
+		}
+		if (Math.hypot(x - maxX, y - minY) < handleRadius) {
+			return {
+				cursorStyle: CursorStyle.NESW_RESIZE,
+				externalId: ExternalId.TOP_RIGHT_HANDLE,
+				zOrder: 'top',
+			};
+		}
+		if (Math.hypot(x - minX, y - maxY) < handleRadius) {
+			return {
+				cursorStyle: CursorStyle.NESW_RESIZE,
+				externalId: ExternalId.BOTTOM_LEFT_HANDLE,
+				zOrder: 'top',
+			};
+		}
+		if (Math.hypot(x - maxX, y - maxY) < handleRadius) {
+			return {
+				cursorStyle: CursorStyle.NWSE_RESIZE,
+				externalId: ExternalId.BOTTOM_RIGHT_HANDLE,
+				zOrder: 'top',
+			};
+		}
 
 		// Check body
 		if (x >= minX && x <= maxX && y >= minY && y <= maxY) {
 			return {
-				cursorStyle: 'pointer',
-				externalId: 'body',
-				zOrder: 1 as unknown as PrimitivePaneViewZOrder,
+				cursorStyle: CursorStyle.POINTER,
+				externalId: ExternalId.BODY,
+				zOrder: 'top',
 			};
 		}
 

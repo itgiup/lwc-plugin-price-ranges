@@ -4,8 +4,8 @@ import { PricerangesDataSource } from './data-source';
 import { ViewPoint } from './pane-view';
 import { positionsBox } from './helpers/dimensions/positions';
 
-const handleWidth = 10;
-const handleHeight = 10;
+const handleWidth = 3;
+const handleHeight = 3;
 
 export class PricerangesPaneRenderer implements IPrimitivePaneRenderer {
 	_p1: ViewPoint;
@@ -86,7 +86,7 @@ export class PricerangesPaneRenderer implements IPrimitivePaneRenderer {
 					ctx.moveTo(xCenter, verticalPositions.position);
 					ctx.lineTo(xCenter + 5, verticalPositions.position + 5);
 					ctx.stroke();
-			
+
 					// Draw Label
 					const labelText = `${labelData.priceDiff} (${labelData.percentageDiff}) ${labelData.barDiff}`;
 					ctx.font = options.labelFont;
@@ -95,7 +95,7 @@ export class PricerangesPaneRenderer implements IPrimitivePaneRenderer {
 					const labelHeight = 20; // fixed height
 					const labelX = xCenter - labelWidth / 2;
 					const labelY = verticalPositions.position - labelHeight - 5; // 5px above the box
-			
+
 					// background
 					ctx.fillStyle = options.labelBackgroundColor;
 					ctx.fillRect(labelX, labelY, labelWidth, labelHeight);
