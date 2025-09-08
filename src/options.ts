@@ -74,4 +74,6 @@ export const defaultOptions: PricerangesOptions = {
 	},
 	selectedHandleColor: 'rgba(223, 172, 5, 1)',
 	selectedHandleWidth: 4,
+	deleteButtonBackgroundColor: 'rgba(255, 0, 0, 0.34)',
+	deleteButtonForegroundColor: 'white',
 } as const;

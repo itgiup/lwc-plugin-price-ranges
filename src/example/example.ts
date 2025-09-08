@@ -29,10 +29,10 @@ async function setupChart() {
 		},
 		grid: {
 			vertLines: {
-				color: 'rgba(197, 203, 206, 0.5)',
+				color: 'rgba(197, 203, 206, 0.1)',
 			},
 			horzLines: {
-				color: 'rgba(197, 203, 206, 0.5)',
+				color: 'rgba(197, 203, 206, 0.1)',
 			},
 		},
 	});
