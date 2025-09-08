@@ -15,6 +15,8 @@ import { ExternalId } from './helpers/constants';
 import { PricerangesOptions, defaultOptions } from './options';
 import { PricerangesPaneView } from './pane-view';
 import { PluginBase } from './plugin-base';
+import { formatNumber } from './utils/number';
+import { formatDuration } from './helpers/time';
 
 class SelectionManager {
 	private static _selectedItem: Priceranges | null = null;
@@ -61,7 +63,7 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 	private _draggedPart: string | null = null;
 	private _initialP1: Point | null = null;
 	private _initialP2: Point | null = null;
-	
+
 	private _activePricePoint: 'p1' | 'p2' | null = null;
 	private _dragOffsetX: number | null = null;
 	private _dragOffsetY: number | null = null;
@@ -151,17 +153,12 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 		const p2 = this.p2;
 		const priceDiff = p2.price - p1.price;
 		const percentageDiff = (priceDiff / p1.price) * 100;
-		const timeScale = this.chart.timeScale();
-		const barIndex1 = timeScale.timeToIndex(p1.time, true);
-		const barIndex2 = timeScale.timeToIndex(p2.time, true);
-		if (barIndex1 === null || barIndex2 === null) {
-			return null;
-		}
-		const barDiff = barIndex2 - barIndex1;
+		const timeDiff = p1.time as number - (p2.time as number);
+		const barDiff = formatDuration(timeDiff);
 		return {
-			priceDiff: priceDiff.toFixed(2),
-			percentageDiff: percentageDiff.toFixed(2) + '%',
-			barDiff: barDiff.toString(),
+			priceDiff: formatNumber(priceDiff),
+			percentageDiff: formatNumber(percentageDiff) + '%',
+			barDiff,
 		};
 	}
 
@@ -523,7 +520,7 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 	private _handleMouseUp = () => {
 		this._isDragging = false;
 		this._draggedPart = null;
-		
+
 		this._initialP1 = null;
 		this._initialP2 = null;
 		this._activePricePoint = null;

@@ -1,4 +1,4 @@
-import { Time, isBusinessDay } from 'lightweight-charts';
+import { Time } from 'lightweight-charts';
 
 export interface PricerangesOptions {
 	//* Define the options for the primitive.
@@ -26,19 +26,15 @@ export interface PricerangesOptions {
 	showLabels: boolean;
 	priceLabelFormatter: (price: number) => string;
 	timeLabelFormatter: (time: Time) => string;
-	selectedHandleColor: string; // Added missing property
-		selectedHandleWidth: number; // Added missing property
+	selectedHandleColor: string;
+	selectedHandleWidth: number;
 	deleteButtonBackgroundColor: string;
 	deleteButtonForegroundColor: string;
 }
 
-
-
 const fontSize = 12;
 const fontWeight = 'bold';
 const fontFamily = 'Arial';
-
-
 
 export const defaultOptions: PricerangesOptions = {
 	//* Define the default values for all the primitive options.
@@ -66,14 +62,22 @@ export const defaultOptions: PricerangesOptions = {
 	showLabels: true,
 	priceLabelFormatter: (price: number) => price.toFixed(2),
 	timeLabelFormatter: (time: Time) => {
-		if (typeof time == 'string') return time;
-		const date = isBusinessDay(time)
-			? new Date(time.year, time.month, time.day)
-			: new Date(time * 1000);
-		return date.toLocaleDateString();
+		if (typeof time === 'object' && 'day' in time) {
+			const month = time.month.toString().padStart(2, '0');
+			const day = time.day.toString().padStart(2, '0');
+			return `${time.year}-${month}-${day}`;
+		}
+		const date = new Date((time as number) * 1000);
+		const year = date.getFullYear();
+		const month = (date.getMonth() + 1).toString().padStart(2, '0');
+		const day = date.getDate().toString().padStart(2, '0');
+		const hours = date.getHours().toString().padStart(2, '0');
+		const minutes = date.getMinutes().toString().padStart(2, '0');
+		const seconds = date.getSeconds().toString().padStart(2, '0');
+		return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 	},
 	selectedHandleColor: 'rgba(223, 172, 5, 1)',
 	selectedHandleWidth: 4,
-	deleteButtonBackgroundColor: 'rgba(255, 0, 0, 0.34)',
+	deleteButtonBackgroundColor: 'rgba(255, 59, 48, 0.8)',
 	deleteButtonForegroundColor: 'white',
 } as const;

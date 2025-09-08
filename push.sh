@@ -1,5 +1,5 @@
 git add .
-git commit -m "cập nhật README.md"
+git commit -m "Tính toán biên giá diff, định dạng số formatNumber, định giá khoảng thời gian formatDuration"
 git push
 
 # merge -> main 
