@@ -48,7 +48,7 @@ async function setupChart() {
 		wickDownColor: '#ef5350',
 		wickUpColor: '#26a69a',
 	});
-    Priceranges.setTargetSeries(candlestickSeries); // Set the target series for drawing
+	Priceranges.setTargetSeries(candlestickSeries); // Set the target series for drawing
 
 	const data = await getBinanceKlines();
 	candlestickSeries.setData(data);
@@ -76,15 +76,15 @@ setupChart();
 // Add button event listener
 const drawButton = document.getElementById('drawPriceRangeButton');
 if (drawButton) {
-    drawButton.addEventListener('click', () => {
-        Priceranges.setDrawingMode(true);
-        drawButton.textContent = 'Drawing... Click on chart to place points';
-        (drawButton as HTMLButtonElement).disabled = true;
+	drawButton.addEventListener('click', () => {
+		Priceranges.setDrawingMode(true);
+		drawButton.title = 'Drawing... Click on chart to place points';
+		(drawButton as HTMLButtonElement).disabled = true;
 
-        // Set the callback for when drawing is completed
-        Priceranges.setOnDrawingCompleted(() => {
-            drawButton.textContent = 'Draw Price Range';
-            (drawButton as HTMLButtonElement).disabled = false;
-        });
-    });
+		// Set the callback for when drawing is completed
+		Priceranges.setOnDrawingCompleted(() => {
+			drawButton.title = 'Draw Price Range';
+			(drawButton as HTMLButtonElement).disabled = false;
+		});
+	});
 }
