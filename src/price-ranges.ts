@@ -92,22 +92,14 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 		}
 
 		const chartElement = this.chart.chartElement();
-		chartElement.addEventListener(
-			'mousedown',
-			this._handleMouseDown
-		);
-		chartElement.addEventListener(
-			'mouseup',
-			this._handleMouseUp
-		);
-		chartElement.addEventListener(
-			'mousemove',
-			this._handleMouseMove
-		);
-		chartElement.addEventListener(
-			'mouseleave',
-			this._handleMouseLeave
-		);
+		chartElement.addEventListener('mousedown', this._handleMouseDown);
+		chartElement.addEventListener('mouseup', this._handleMouseUp);
+		chartElement.addEventListener('mousemove', this._handleMouseMove);
+		chartElement.addEventListener('mouseleave', this._handleMouseLeave);
+		chartElement.addEventListener('touchstart', this._handleTouchStart, { passive: false });
+		chartElement.addEventListener('touchmove', this._handleTouchMove, { passive: false });
+		chartElement.addEventListener('touchend', this._handleTouchEnd);
+		chartElement.addEventListener('touchcancel', this._handleTouchEnd);
 	}
 
 	public detached(): void {
@@ -119,22 +111,14 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 		}
 
 		const chartElement = this.chart.chartElement();
-		chartElement.removeEventListener(
-			'mousedown',
-			this._handleMouseDown
-		);
-		chartElement.removeEventListener(
-			'mouseup',
-			this._handleMouseUp
-		);
-		chartElement.removeEventListener(
-			'mousemove',
-			this._handleMouseMove
-		);
-		chartElement.removeEventListener(
-			'mouseleave',
-			this._handleMouseLeave
-		);
+		chartElement.removeEventListener('mousedown', this._handleMouseDown);
+		chartElement.removeEventListener('mouseup', this._handleMouseUp);
+		chartElement.removeEventListener('mousemove', this._handleMouseMove);
+		chartElement.removeEventListener('mouseleave', this._handleMouseLeave);
+		chartElement.removeEventListener('touchstart', this._handleTouchStart);
+		chartElement.removeEventListener('touchmove', this._handleTouchMove);
+		chartElement.removeEventListener('touchend', this._handleTouchEnd);
+		chartElement.removeEventListener('touchcancel', this._handleTouchEnd);
 
 		super.detached();
 	}
@@ -501,6 +485,39 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 		}
 	};
 
+	private _handleTouchStart = (event: TouchEvent) => {
+		if (event.touches.length !== 1) return;
+		if (Priceranges._stickyPart) return;
+
+		const chartElement = this.chart.chartElement();
+		const rect = chartElement.getBoundingClientRect();
+		const touch = event.touches[0];
+		const x = touch.clientX - rect.left;
+		const y = touch.clientY - rect.top;
+		const hitTestResult = this.paneViews()[0].hitTest(x as Coordinate, y as Coordinate);
+
+		if (hitTestResult && hitTestResult.externalId === ExternalId.BODY) {
+			event.preventDefault();
+			this._isDragging = true;
+			this._draggedPart = hitTestResult.externalId as string;
+			const time = this.chart.timeScale().coordinateToTime(x as Coordinate);
+			const price = this.series.coordinateToPrice(y as Coordinate);
+			if (!time || !price) return;
+
+			this._dragOffsetX = (time as number) - (this.p1.time as number);
+			this._dragOffsetY = price - this.p1.price;
+
+			this._initialP1 = { ...this.p1 };
+			this._initialP2 = { ...this.p2 };
+
+			this.chart.applyOptions({
+				handleScroll: {
+					pressedMouseMove: false,
+				},
+			});
+		}
+	};
+
 	private _handleMouseUp = () => {
 		this._isDragging = false;
 		this._draggedPart = null;
@@ -516,6 +533,10 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 				pressedMouseMove: true,
 			},
 		});
+	};
+
+	private _handleTouchEnd = () => {
+		this._handleMouseUp();
 	};
 
 	private _handleMouseLeave = () => {
@@ -543,6 +564,35 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 				this.p1.price = price - this._dragOffsetY;
 
 				// Maintain the original width/height of the price range
+				const timeDiff = (this._initialP2.time as number) - (this._initialP1.time as number);
+				const priceDiff = this._initialP2.price - this._initialP1.price;
+
+				this.p2.time = (this.p1.time as number) + timeDiff as Time;
+				this.p2.price = this.p1.price + priceDiff;
+			}
+		}
+		this.requestUpdate();
+	};
+
+	private _handleTouchMove = (event: TouchEvent) => {
+		if (event.touches.length !== 1) return;
+		if (!this._isDragging || !this._draggedPart) return;
+		event.preventDefault();
+
+		const chartElement = this.chart.chartElement();
+		const rect = chartElement.getBoundingClientRect();
+		const touch = event.touches[0];
+		const x = touch.clientX - rect.left;
+		const y = touch.clientY - rect.top;
+		const time = this.chart.timeScale().coordinateToTime(x as Coordinate);
+		const price = this.series.coordinateToPrice(y as Coordinate);
+		if (!time || !price) return;
+
+		if (this._draggedPart === ExternalId.BODY) {
+			if (this._dragOffsetX !== null && this._dragOffsetY !== null && this._initialP1 && this._initialP2) {
+				this.p1.time = (time as number) - this._dragOffsetX as Time;
+				this.p1.price = price - this._dragOffsetY;
+
 				const timeDiff = (this._initialP2.time as number) - (this._initialP1.time as number);
 				const priceDiff = this._initialP2.price - this._initialP1.price;
 
