@@ -16,5 +16,6 @@ export const ExternalId = {
     TOP_RIGHT_HANDLE: 'top-right-handle',
     BOTTOM_LEFT_HANDLE: 'bottom-left-handle',
     BOTTOM_RIGHT_HANDLE: 'bottom-right-handle',
-    BODY: 'body',
+        BODY: 'body',
+    DELETE_BUTTON: 'delete-button',
 } as const;

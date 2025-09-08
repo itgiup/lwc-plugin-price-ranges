@@ -104,11 +104,6 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 
 	public detached(): void {
 		Priceranges._instances = Priceranges._instances.filter(p => p !== this);
-		if (Priceranges._instances.length === 0 && Priceranges._chart) {
-			Priceranges._chart.unsubscribeClick(Priceranges._handleGlobalClick);
-			Priceranges._chart.unsubscribeCrosshairMove(Priceranges._handleGlobalCrosshairMove);
-			Priceranges._eventHandlerAttached = false;
-		}
 
 		const chartElement = this.chart.chartElement();
 		chartElement.removeEventListener('mousedown', this._handleMouseDown);
@@ -231,6 +226,10 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 		return null;
 	}
 
+	public destroy(): void {
+		this.series.detachPrimitive(this);
+	}
+
 	private static _handleGlobalClick = (param: MouseEventParams) => {
 		if (!param.point || !Priceranges._chart || !Priceranges._targetSeries || !Priceranges._targetSeries) return;
 		const { x, y } = param.point;
@@ -288,7 +287,10 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 		}
 
 		if (clickedInstance && clickedPart) {
-			if (clickedPart !== ExternalId.BODY) {
+			if (clickedPart === ExternalId.DELETE_BUTTON) {
+				clickedInstance.destroy();
+				SelectionManager.selectedItem = null;
+			} else if (clickedPart !== ExternalId.BODY) {
 				Priceranges._stickyPart = { instance: clickedInstance, part: clickedPart };
 				Priceranges._chart.applyOptions({
 					handleScroll: { mouseWheel: false, pressedMouseMove: false },

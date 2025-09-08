@@ -54,10 +54,30 @@ export class PricerangesPaneView implements IPrimitivePaneView {
 		const minY = Math.min(this._p1.y, this._p2.y);
 		const maxY = Math.max(this._p1.y, this._p2.y);
 
-        const handleRadiusH = handleWidth / 2;
+		// Check delete button first, as it's on top
+		if (this._source.isSelected() && this._source.options.showInfoLabel) {
+			const xCenter = (minX + maxX) / 2;
+			const labelHeight = 20; // fixed height in css pixels
+			const paddingAboveBox = 5;
+			const labelY = minY - labelHeight - paddingAboveBox;
+			const deleteButtonRadius = 8;
+			const paddingAboveLabel = 5;
+			const deleteButtonX = xCenter;
+			const deleteButtonY = labelY - deleteButtonRadius - paddingAboveLabel;
+
+			if (Math.hypot(x - deleteButtonX, y - deleteButtonY) < deleteButtonRadius) {
+				return {
+					cursorStyle: CursorStyle.POINTER,
+					externalId: ExternalId.DELETE_BUTTON,
+					zOrder: 'top',
+				};
+			}
+		}
+
+		const handleRadiusH = handleWidth / 2;
 		const handleRadiusV = handleHeight / 2;
 
-        // Check handles first as they are on top
+		// Check handles first as they are on top
 
 		// Horizontal handles
 		if (x >= minX - handleRadiusH && x <= minX + handleRadiusH && y >= minY && y <= maxY) {

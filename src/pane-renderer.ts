@@ -125,6 +125,30 @@ export class PricerangesPaneRenderer implements IPrimitivePaneRenderer {
 					ctx.textAlign = 'center';
 					ctx.textBaseline = 'middle';
 					ctx.fillText(labelText, xCenter, labelY + labelHeight / 2);
+
+					// Draw delete button if selected
+					if (this._source.isSelected()) {
+						const deleteButtonRadius = 8 * scope.verticalPixelRatio;
+						const deleteButtonX = xCenter;
+						const deleteButtonY = labelY - deleteButtonRadius - (5 * scope.verticalPixelRatio);
+
+						// Draw the circle for the delete button
+						ctx.beginPath();
+						ctx.fillStyle = options.deleteButtonBackgroundColor;
+						ctx.arc(deleteButtonX, deleteButtonY, deleteButtonRadius, 0, 2 * Math.PI);
+						ctx.fill();
+
+						// Draw the 'X' icon
+						ctx.strokeStyle = options.deleteButtonForegroundColor;
+						ctx.lineWidth = 2 * scope.verticalPixelRatio;
+						ctx.beginPath();
+						const offset = deleteButtonRadius / Math.sqrt(2) * 0.8; // Make X slightly smaller than circle
+						ctx.moveTo(deleteButtonX - offset, deleteButtonY - offset);
+						ctx.lineTo(deleteButtonX + offset, deleteButtonY + offset);
+						ctx.moveTo(deleteButtonX + offset, deleteButtonY - offset);
+						ctx.lineTo(deleteButtonX - offset, deleteButtonY + offset);
+						ctx.stroke();
+					}
 				}
 			}
 

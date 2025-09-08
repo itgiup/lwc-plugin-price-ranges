@@ -27,8 +27,11 @@ export interface PricerangesOptions {
 	priceLabelFormatter: (price: number) => string;
 	timeLabelFormatter: (time: Time) => string;
 	selectedHandleColor: string; // Added missing property
-	selectedHandleWidth: number; // Added missing property
+		selectedHandleWidth: number; // Added missing property
+	deleteButtonBackgroundColor: string;
+	deleteButtonForegroundColor: string;
 }
+
 
 
 const fontSize = 12;
