@@ -1,6 +1,6 @@
 import {
 	CandlestickSeries, ColorType, CrosshairMode,
-	createChart, IChartApi
+	createChart,
 } from 'lightweight-charts';
 import { Priceranges } from '../price-ranges';
 

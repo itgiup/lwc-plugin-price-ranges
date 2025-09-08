@@ -60,7 +60,7 @@ if (!existsSync(compiledFolder)) {
 
 console.log('Current directory:', currentDir);
 console.log('Compiled folder:', compiledFolder);
-const readmeSourcePath = resolve(currentDir, 'README.md');
+const readmeSourcePath = resolve(currentDir, 'src', 'README.md');
 const readmeDestPath = resolve(compiledFolder, 'README.md');
 console.log('README source path:', readmeSourcePath);
 console.log('README destination path:', readmeDestPath);
@@ -109,7 +109,7 @@ const promises = pluginsToBuild.map(file => {
 });
 await Promise.all(promises);
 
-copyFileSync(resolve(currentDir, 'README.md'), resolve(compiledFolder, 'README.md'));
+copyFileSync(resolve(currentDir, 'src', 'README.md'), resolve(compiledFolder, 'README.md'));
 
 console.log('Generating the package.json file...');
 pluginsToBuild.forEach(file => {

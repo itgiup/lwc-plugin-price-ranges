@@ -8,3 +8,6 @@ git merge master
 git push origin main 
 
 git checkout master
+
+# deploy
+# wrangler pages deploy example --project-name=lwc-plugin-price-ranges --branch=production

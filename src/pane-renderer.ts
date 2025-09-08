@@ -82,12 +82,24 @@ export class PricerangesPaneRenderer implements IPrimitivePaneRenderer {
 					ctx.lineWidth = options.arrowWidth;
 					const xCenter = horizontalPositions.position + horizontalPositions.length / 2;
 					ctx.beginPath();
-					ctx.moveTo(xCenter, verticalPositions.position + verticalPositions.length); // bottom-center
-					ctx.lineTo(xCenter, verticalPositions.position); // top-center
-					// arrowhead
-					ctx.lineTo(xCenter - 5, verticalPositions.position + 5);
-					ctx.moveTo(xCenter, verticalPositions.position);
-					ctx.lineTo(xCenter + 5, verticalPositions.position + 5);
+
+					const isArrowUp = this._source.p1.price > this._source.p2.price; // Changed condition to reverse arrow direction
+
+					if (isArrowUp) {
+						ctx.moveTo(xCenter, verticalPositions.position); // top-center
+						ctx.lineTo(xCenter, verticalPositions.position + verticalPositions.length); // bottom-center
+						// arrowhead
+						ctx.lineTo(xCenter - 5, verticalPositions.position + verticalPositions.length - 5);
+						ctx.moveTo(xCenter, verticalPositions.position + verticalPositions.length);
+						ctx.lineTo(xCenter + 5, verticalPositions.position + verticalPositions.length - 5);
+					} else {
+						ctx.moveTo(xCenter, verticalPositions.position + verticalPositions.length); // bottom-center
+						ctx.lineTo(xCenter, verticalPositions.position); // top-center
+						// arrowhead
+						ctx.lineTo(xCenter - 5, verticalPositions.position + 5);
+						ctx.moveTo(xCenter, verticalPositions.position);
+						ctx.lineTo(xCenter + 5, verticalPositions.position + 5);
+					}
 					ctx.stroke();
 
 					// Draw Label

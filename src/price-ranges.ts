@@ -61,7 +61,7 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 	private _draggedPart: string | null = null;
 	private _initialP1: Point | null = null;
 	private _initialP2: Point | null = null;
-	private _startDragLogicalPoint: Point | null = null;
+	
 	private _activePricePoint: 'p1' | 'p2' | null = null;
 	private _dragOffsetX: number | null = null;
 	private _dragOffsetY: number | null = null;
@@ -248,13 +248,14 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 	}
 
 	private static _handleGlobalClick = (param: MouseEventParams) => {
-		if (!param.point || !Priceranges._chart) return;
+		if (!param.point || !Priceranges._chart || !Priceranges._targetSeries || !Priceranges._targetSeries) return;
+		const { x, y } = param.point;
 
 		// Handle drawing mode clicks first
 		if (Priceranges._pendingDrawingStart && Priceranges._drawingState === 'IDLE') {
 			// First click after enabling drawing mode: start drawing
-			const time = Priceranges._chart.timeScale().coordinateToTime(param.point.x);
-			const price = Priceranges._targetSeries.coordinateToPrice(param.point.y);
+			const time = Priceranges._chart.timeScale().coordinateToTime(x);
+			const price = Priceranges._targetSeries.coordinateToPrice(y);
 			if (!time || !price) return;
 
 			Priceranges._drawingInstance = new Priceranges({ time, price }, { time, price });
@@ -265,8 +266,9 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 		} else if (Priceranges._drawingState === 'DRAWING_STARTED') {
 			// Second click: finalize drawing
 			if (Priceranges._drawingInstance && Priceranges._targetSeries) {
-				const time = Priceranges._chart.timeScale().coordinateToTime(param.point.x);
-				const price = Priceranges._targetSeries.coordinateToPrice(param.point.y);
+				const { x, y } = param.point;
+				const time = Priceranges._chart.timeScale().coordinateToTime(x);
+				const price = Priceranges._targetSeries.coordinateToPrice(y);
 				if (!time || !price) return;
 				Priceranges._drawingInstance.p2 = { time, price };
 				Priceranges._drawingInstance.requestUpdate();
@@ -293,7 +295,7 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 		let clickedPart: string | null = null;
 
 		for (const instance of Priceranges._instances) {
-			const hitResult = instance.paneViews()[0].hitTest(param.point.x, param.point.y);
+			const hitResult = instance.paneViews()[0].hitTest(x, y);
 			if (hitResult) {
 				clickedInstance = instance;
 				clickedPart = hitResult.externalId;
@@ -341,15 +343,17 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 					SelectionManager.selectedItem = clickedInstance;
 				}
 			}
-		} else {
+		}
+		else {
 			SelectionManager.selectedItem = null;
 		}
 	};
 
 	private static _handleGlobalCrosshairMove = (param: MouseEventParams) => {
-		if (Priceranges._drawingState === 'DRAWING_STARTED' && Priceranges._drawingInstance && param.point) {
-			const time = Priceranges._chart.timeScale().coordinateToTime(param.point.x);
-			const price = Priceranges._targetSeries.coordinateToPrice(param.point.y);
+		if (Priceranges._drawingState === 'DRAWING_STARTED' && Priceranges._drawingInstance && param.point && Priceranges._chart && Priceranges._targetSeries) {
+			const { x, y } = param.point;
+			const time = Priceranges._chart.timeScale().coordinateToTime(x);
+			const price = Priceranges._targetSeries.coordinateToPrice(y);
 			if (!time || !price) return;
 
 			Priceranges._drawingInstance.p2 = { time, price };
@@ -358,9 +362,11 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 		}
 
 		if (Priceranges._stickyPart) {
+			if (!param.point) return;
 			const { instance, part } = Priceranges._stickyPart;
-			const time = instance.chart.timeScale().coordinateToTime(param.point.x);
-			const price = instance.series.coordinateToPrice(param.point.y);
+			const { x, y } = param.point;
+			const time = instance.chart.timeScale().coordinateToTime(x);
+			const price = instance.series.coordinateToPrice(y);
 			if (!time || !price) return;
 
 			const currentMinTime = Math.min(instance.p1.time as number, instance.p2.time as number);
@@ -444,9 +450,10 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 			return;
 		}
 
+		const { x, y } = param.point;
 		let currentlyHovered: Priceranges | null = null;
 		for (const instance of Priceranges._instances) {
-			const hitResult = instance.paneViews()[0].hitTest(param.point.x, param.point.y);
+			const hitResult = instance.paneViews()[0].hitTest(x, y);
 			if (hitResult) {
 				currentlyHovered = instance;
 				break;
@@ -497,7 +504,7 @@ export class Priceranges extends PluginBase implements PricerangesDataSource {
 	private _handleMouseUp = () => {
 		this._isDragging = false;
 		this._draggedPart = null;
-		this._startDragLogicalPoint = null; // This is no longer needed for body dragging
+		
 		this._initialP1 = null;
 		this._initialP2 = null;
 		this._activePricePoint = null;
